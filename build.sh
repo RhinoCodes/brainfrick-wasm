@@ -18,3 +18,6 @@ cd ..
 
 # Compile
 em++ -lembind -o main.js main.cpp -O3 -s ASYNCIFY
+
+# Remove emsdk directory
+rm -rf emsdk
