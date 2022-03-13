@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+<head>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <textarea rows="10" cols="50" readonly></textarea><br>
+  <input placeholder="Input to Brainf*ck program"></input>
+  <input type="file" onchange="previewFile()"><br><br><br>
+  <textarea id="code" readonly></textarea>
+</body>
+<script>
+  document.getElementsByTagName("input")[0].value = '';
+  document.getElementsByTagName("textarea")[0].value = '';
+  document.getElementsByTagName("textarea")[1].value = '';
+  function previewFile() {
+    const content = document.querySelector('.content');
+    const [file] = document.querySelector('input[type=file]').files;
+    const reader = new FileReader();
+
+    reader.addEventListener("load", () => {
+      // this will then display a text file
+      fetchCode(reader.result);
+    }, false);
+
+    if (file) {
+      reader.readAsText(file);
+    }
+  }
+
+  let brainfrickCode = "";
+  let inputBuffer = "";
+
+  async function fetchCode(brainfrickCode) {
+    document.getElementsByTagName("input")[0].value = '';
+    document.getElementsByTagName("textarea")[0].value = '';
+    document.getElementsByTagName("textarea")[1].value = '';
+    document.getElementById("code").value = brainfrickCode
+    let codex = document.getElementById("code");
+    codex.style.height = ""; /* Reset the height*/
+    codex.style.height = codex.scrollHeight+"px";
+    codex.style.width = ""; /* Reset the height*/
+    codex.style.width = codex.scrollWidth+"px";
+    brainfrickCode = brainfrickCode.trim().split("\n").join("")
+    console.log(brainfrickCode)
+    
+    Module.setCode(brainfrickCode);
+    Module.execute();
+  }
+
+  var Module = {
+    onRuntimeInitialized: function () {
+      
+    }
+  };
+
+  function jsMethodAgrs(title) {
+    let textarea = document.getElementsByTagName("textarea")[0];
+    textarea.value += title;
+  }
+</script>
+<script src="quick_example.js"></script>
+
+</html>

@@ -1,0 +1,8 @@
+#code {
+    border: none;
+    resize: none;
+    width:100%;
+}
+#code:focus {
+    outline:none;
+}
