@@ -7,7 +7,7 @@
   <h1 style="font-family: Tahoma, sans-serif;">Brainfrick WASM</h1>
   <h3 style="font-family: Tahoma, sans-serif;">Brainf*ck interpreter written in C++ compiled to WASM</h3><br>
   <textarea rows="10" cols="50" readonly></textarea><br>
-  <input placeholder="Input to Brainf*ck program"></input>
+  <input placeholder="Input to Brainf*ck program"></input><button onclick="setBuffer()">Enter</button>
   <input type="file" onchange="previewFile()"><br><br><br>
   <textarea id="code" readonly></textarea>
   <a style="position:fixed; bottom:0;left:0;" href="https://github.com/RhinoCodes/brainfrick-wasm">Github</a>
@@ -33,6 +33,14 @@
 
   let brainfrickCode = "";
   let inputBuffer = "";
+
+  function setBuffer() {
+    inputBuffer = document.getElementsByTagName("input")[0].value.split('').reverse().join('');
+    if (inputBuffer == "") {
+      inputBuffer = "EMPTY";
+    }
+    document.getElementsByTagName("input")[0].value = "";
+  }
 
   async function fetchCode(brainfrickCode) {
     document.getElementsByTagName("input")[0].value = '';

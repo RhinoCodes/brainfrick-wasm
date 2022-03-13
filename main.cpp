@@ -3,10 +3,21 @@
 #include <map>
 #include <emscripten/bind.h>
 #include <emscripten.h>
+#include <algorithm>
 using namespace emscripten;
 
 std::string code = ",.";
 
+EM_JS(char*, getBuffer, (), {
+  var jsString = inputBuffer;
+  // 'jsString.length' would return the length of the string as UTF-16
+  // units, but Emscripten C strings operate as UTF-8.
+  var lengthBytes = lengthBytesUTF8(jsString)+1;
+  var stringOnWasmHeap = _malloc(lengthBytes);
+  stringToUTF8(jsString, stringOnWasmHeap, lengthBytes);
+  inputBuffer = "";
+  return stringOnWasmHeap;
+});
 
 EM_JS(void, call_js_agrs, (const char *title, int lentitle), {
     jsMethodAgrs(UTF8ToString(title, lentitle));
@@ -67,22 +78,25 @@ void execute() {
         } else if (instruction == ",") {
             if (inputBuffer.size() == 0) {
                 int x = -1;
-                int character = 0;
+                
                 while (x == -1) {
-                    x = EM_ASM_INT({
-                        let value = document.getElementsByTagName("input")[0].value;
-                        if(value == "") {
-                            return -1;
-                        } 
-                        document.getElementsByTagName("input")[0].value = "";
-                        return Number(value.charCodeAt());
-                    });
-                    if (x != -1) {
-                        character = int(x);
+                    std::string buffer(getBuffer());
+                    if (buffer != "") {
+                        if (buffer == "EMPTY") {
+                            inputBuffer.push_back(10);
+                        } else {
+                            inputBuffer.push_back(10);
+                            for (int i=0; i < buffer.length(); i++) {
+                                inputBuffer.push_back((int)buffer.at(i));
+                            }
+                        }
+                        
+
+                        x = 0;
                     }
+                    
                     emscripten_sleep(5);
-                }
-                inputBuffer.push_back(character);
+               }
             }
             mem[cell_index] = inputBuffer.back();
             inputBuffer.pop_back();
