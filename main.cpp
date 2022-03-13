@@ -11,12 +11,6 @@ std::string code = ",.";
 EM_JS(void, call_js_agrs, (const char *title, int lentitle), {
     jsMethodAgrs(UTF8ToString(title, lentitle));
 });
-/*
-void setBuffer(std::string buffer) {
-  for (int i=0; i < buffer.length(); i++) {
-      inputBuffer.push_back((int)buffer.at(i));
-  }
-}*/
 
 void setCode(std::string codex) {
     code = codex;
@@ -33,7 +27,6 @@ void execute() {
     std::string tempInputBuffer;
     int ip = 0;
     int cell_index = 0;
-    //int codeLength = code.length();
     std::map<int, int> brackets;
     std::vector<int> stack = {};
     while (ip < code.length()) {
@@ -91,7 +84,6 @@ void execute() {
                 }
                 inputBuffer.push_back(character);
             }
-            //consoleLog(std::to_string(inputBuffer.back()));
             mem[cell_index] = inputBuffer.back();
             inputBuffer.pop_back();
         } else if (instruction == "[") {
@@ -110,5 +102,4 @@ void execute() {
 EMSCRIPTEN_BINDINGS(my_module) {
     function("setCode", &setCode);
     function("execute", &execute);
-  //  function("setBuffer", &setBuffer);
 }
