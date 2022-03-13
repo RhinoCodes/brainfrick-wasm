@@ -11,7 +11,7 @@ cd emsdk
 ./emsdk activate latest
 
 # Activate PATH and other environment variables in the current terminal
-source ./emsdk_env.sh
+. ./emsdk_env.sh
 
 # Step back to src directory
 cd ..
