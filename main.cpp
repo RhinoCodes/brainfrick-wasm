@@ -34,7 +34,6 @@ void execute() {
     std::vector<unsigned char> mem = {0};
     std::vector<int> inputBuffer;
     std::string tempInputBuffer;
-    std::string output = "";
     int ip = 0;
     int cell_index = 0;
     int codeLength = code.length();
@@ -99,8 +98,7 @@ void execute() {
             cell_index--;
         } else if (instruction == ".") {
             std::string str1(1, mem[cell_index]);
-            //consoleLog(str1);
-            output = output + str1;
+            consoleLog(str1);
         } else if (instruction == ",") {
             if (inputBuffer.size() == 0) {
                 int x = -1;
@@ -145,8 +143,6 @@ void execute() {
         ip++;
     }
     delete[] brackets;
-    consoleLog("Done!");
-    consoleLog(output);
 }
 
 EMSCRIPTEN_BINDINGS(my_module) {
