@@ -1,9 +1,7 @@
 #include <iostream>
 #include <vector>
-#include <map>
 #include <emscripten/bind.h>
 #include <emscripten.h>
-#include <algorithm>
 using namespace emscripten;
 
 std::string code = ",.";
@@ -33,38 +31,65 @@ void consoleLog(std::string x) {
 
 void execute() {
     std::string instruction = "";
-    std::vector<int> mem = {0};
+    std::vector<unsigned char> mem = {0};
     std::vector<int> inputBuffer;
     std::string tempInputBuffer;
+    std::string output = "";
     int ip = 0;
     int cell_index = 0;
-    std::map<int, int> brackets;
-    std::vector<int> stack = {};
-    while (ip < code.length()) {
+    int codeLength = code.length();
+    int* brackets{ new int[codeLength]{} };
+    std::vector<int> stack;
+    while (ip < codeLength) {
         instruction = code.at(ip);
         if (instruction == "[") {
             stack.push_back(ip);
+            
         } else if (instruction == "]") {
-            brackets.insert(std::pair<int, int>(ip,stack.back()));
-            brackets.insert(std::pair<int, int>(stack.back(),ip));
+            brackets[ip] = stack.back();
+            brackets[stack.back()] = ip;
             stack.pop_back();
         }
         ip++;
     }
-    ip = 0;
 
-    while (ip < code.length()) {
+    ip = 0;
+    int toAdd = 1;
+    std::string nextInstructionString;
+
+    while (ip < codeLength) {
         instruction = code.at(ip);
         if (instruction == "+") {
-            mem[cell_index] = mem[cell_index] + 1;
-            if (mem[cell_index] == 256) {
-                mem[cell_index] = 0;
+            toAdd = 1;
+            nextInstructionString = code.at(ip+1);
+            if (nextInstructionString == "+") {
+                ip++;
+                while (nextInstructionString == "+") {
+                    toAdd++;
+                    ip++;
+                    nextInstructionString = code.at(ip);
+                }
+                ip--;
             }
+            mem[cell_index] = mem[cell_index] + toAdd;
+            /*if (cell_index == 0) {
+                consoleLog(std::to_string(ip)+": "+std::to_string(toAdd));
+            } */
+            
         } else if (instruction == "-") {
-            mem[cell_index] = mem[cell_index] - 1;
-            if (mem[cell_index] == -1) {
-                mem[cell_index] = 255;
-            } 
+            toAdd = -1;
+            nextInstructionString = code.at(ip+1);
+            if (nextInstructionString == "-") {
+                ip++;
+                while (nextInstructionString == "-") {
+                    toAdd--;
+                    ip++;
+                    nextInstructionString = code.at(ip+1);
+                }
+                
+                ip--;
+            }
+            mem[cell_index] = mem[cell_index] + toAdd; 
         } else if (instruction == ">") {
             cell_index++;
             if (cell_index == mem.size()) {
@@ -73,8 +98,9 @@ void execute() {
         } else if (instruction == "<") {
             cell_index--;
         } else if (instruction == ".") {
-            std::string str1(1, char(mem[cell_index]));
-            consoleLog(str1);
+            std::string str1(1, mem[cell_index]);
+            //consoleLog(str1);
+            output = output + str1;
         } else if (instruction == ",") {
             if (inputBuffer.size() == 0) {
                 int x = -1;
@@ -102,15 +128,25 @@ void execute() {
             inputBuffer.pop_back();
         } else if (instruction == "[") {
             if (mem[cell_index] == 0) {
-                ip = brackets.at(ip)-1;
+                ip = brackets[ip];
+            } else {
+                std::string subString = code.substr(ip+2);
+                if (subString == "[-]") {
+                    mem[cell_index] = 0;
+                    ip = brackets[ip];
+                }
             }
         } else if (instruction == "]") {
             if (mem[cell_index] != 0) {
-               ip = brackets.at(ip)-1;
+               ip = brackets[ip];
+               
             };
         }
         ip++;
     }
+    delete[] brackets;
+    consoleLog("Done!");
+    consoleLog(output);
 }
 
 EMSCRIPTEN_BINDINGS(my_module) {

@@ -4,3 +4,4 @@ hello.bf
 main
 *.wasm
 *.js
+main-norm.cpp
